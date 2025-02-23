@@ -12,5 +12,7 @@ namespace Denomica.AI.Configuration
 
         public string? Name { get; set; }
 
+        public int? Dimensions { get; set; } = null;
+
     }
 }

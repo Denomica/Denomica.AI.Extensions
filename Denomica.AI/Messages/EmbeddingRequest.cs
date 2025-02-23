@@ -9,7 +9,8 @@ namespace Denomica.AI.Messages
 
         public string Input { get; set; } = string.Empty;
 
-        public string? Model { get; set; }
+        public string? Model { get; set; } = null;
 
+        public int? Dimensions { get; set; } = null;
     }
 }

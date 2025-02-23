@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Denomica.AI.Embeddings
@@ -48,7 +49,12 @@ namespace Denomica.AI.Embeddings
         public const string OptionsKey = "embedding-builder-options";
 
         private ModelDeploymentOptions Options { get; }
-        private JsonSerializerOptions SerializationOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        private JsonSerializerOptions SerializationOptions = new JsonSerializerOptions
+        {
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
         private HttpClient HttpClient { get; }
 
         private List<Task<string>> Chunks = new List<Task<string>>();
@@ -156,7 +162,7 @@ namespace Denomica.AI.Embeddings
 
         private async Task<EmbeddingResponse> GenerateEmbeddingAsync(Task<string> input)
         {
-            var payload = new EmbeddingRequest { Input = await input };
+            var payload = new EmbeddingRequest { Input = await input, Dimensions = this.Options.Dimensions };
             var request = this.CreateRequest(payload);
             var response = await this.HttpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
