@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Denomica.AI.Embeddings
 {
-    public class EmbeddingResponse
+    internal class EmbeddingResponse
     {
         public string Object { get; set; }
 
@@ -15,7 +15,7 @@ namespace Denomica.AI.Embeddings
         public EmbeddingResponseUsage Usage { get; set; }
     }
 
-    public class EmbeddingResponseData
+    internal class EmbeddingResponseData
     {
         public string Object { get; set; }
 
@@ -24,7 +24,7 @@ namespace Denomica.AI.Embeddings
         public float[] Embedding { get; set; }
     }
 
-    public class EmbeddingResponseUsage
+    internal class EmbeddingResponseUsage
     {
         public int Prompt_Tokens { get; set; }
 

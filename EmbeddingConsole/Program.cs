@@ -24,8 +24,8 @@ var provider = services.BuildServiceProvider();
 var builder = provider.GetRequiredService<EmbeddingBuilder>();
 
 var embeddingsResult = await builder
-    .ClearInputs()
-    .AppendTextInput("Hello, world!")
+    .ClearChunks()
+    .AddTextChunk("Hello, world!")
     .BuildAsync();
 
-var embedding = embeddingsResult.Data[0].Embedding;
+var embedding = embeddingsResult.Embedding;
