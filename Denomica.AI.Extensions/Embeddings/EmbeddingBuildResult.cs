@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Denomica.AI.Embeddings
+namespace Denomica.AI.Extensions.Embeddings
 {
     /// <summary>
     /// The result of building an embedding from one or more text chunks.

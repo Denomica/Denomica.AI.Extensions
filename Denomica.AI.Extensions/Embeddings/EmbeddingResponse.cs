@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Denomica.AI.Embeddings
+namespace Denomica.AI.Extensions.Embeddings
 {
     internal class EmbeddingResponse
     {

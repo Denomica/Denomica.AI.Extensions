@@ -1,8 +1,10 @@
-﻿using Denomica.AI.Configuration;
-using Denomica.AI.Messages;
+﻿using Denomica.AI.Extensions.Chunking;
+using Denomica.AI.Extensions.Configuration;
+using Denomica.AI.Extensions.Messages;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -11,7 +13,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Denomica.AI.Embeddings
+namespace Denomica.AI.Extensions.Embeddings
 {
     /// <summary>
     /// A builder for creating embeddings from text chunks.
@@ -71,6 +73,31 @@ namespace Denomica.AI.Embeddings
         public EmbeddingBuilder AddTextChunk(string text)
         {
             this.Chunks.Add(Task.FromResult(text));
+            return this;
+        }
+
+        /// <summary>
+        /// Adds each chunk returned by <paramref name="chunkingService"/> as a text chunk to the current builder.
+        /// </summary>
+        /// <param name="chunkingService">The chunking service to use to produce the chunks.</param>
+        public async Task<EmbeddingBuilder> AddTextChunksAsync(IChunkingService chunkingService)
+        {
+            await foreach(var chunk in chunkingService.GetChunksAsync())
+            {
+                if(null != chunk)
+                {
+                    using (var reader = new StreamReader(chunk))
+                    {
+                        var text = await reader.ReadToEndAsync();
+                        this.AddTextChunk(text);
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+
             return this;
         }
 

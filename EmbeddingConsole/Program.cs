@@ -1,5 +1,5 @@
-﻿using Denomica.AI.Configuration;
-using Denomica.AI.Embeddings;
+﻿using Denomica.AI.Extensions.Configuration;
+using Denomica.AI.Extensions.Embeddings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

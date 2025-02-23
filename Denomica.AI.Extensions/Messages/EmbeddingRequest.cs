@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Denomica.AI.Messages
+namespace Denomica.AI.Extensions.Messages
 {
     public class EmbeddingRequest
     {

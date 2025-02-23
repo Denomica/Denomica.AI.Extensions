@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Denomica.AI\Denomica.AI.csproj" />
+    <ProjectReference Include="..\Denomica.AI.Extensions\Denomica.AI.Extensions.csproj" />
   </ItemGroup>
 
   <ItemGroup>

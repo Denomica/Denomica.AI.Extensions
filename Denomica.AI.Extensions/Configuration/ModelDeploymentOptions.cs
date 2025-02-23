@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Denomica.AI.Configuration
+namespace Denomica.AI.Extensions.Configuration
 {
     public class ModelDeploymentOptions
     {
