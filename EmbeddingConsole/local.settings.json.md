@@ -7,8 +7,9 @@ This file is used to specify settings for the console application contained in t
 	"embedding": {
 		"model": {
 			"endpoint": "<endpoint URI>",
+			"name": "<Name of embedding model>"
 			"key": "<API key>",
-			"dimensions": <Number of dimensions>
+			"dimensions": <Number_of_dimensions>
 		}
 	}
 }

@@ -189,7 +189,7 @@ namespace Denomica.AI.Extensions.Embeddings
 
         private async Task<EmbeddingResponse> GenerateEmbeddingAsync(Task<string> input)
         {
-            var payload = new EmbeddingRequest { Input = await input, Dimensions = this.Options.Dimensions };
+            var payload = new EmbeddingRequest { Model = this.Options.Name, Input = await input, Dimensions = this.Options.Dimensions };
             var request = this.CreateRequest(payload);
             var response = await this.HttpClient.SendAsync(request);
             if (response.IsSuccessStatusCode)
