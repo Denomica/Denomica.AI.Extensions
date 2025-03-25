@@ -18,8 +18,9 @@ var services = new ServiceCollection()
     {
         root.GetSection("embedding:model").Bind(opt);
     }).Services
-    .AddSingleton<EmbeddingBuilder>();
+    .AddSingleton<EmbeddingBuilder>()
 ;
+
 var provider = services.BuildServiceProvider();
 var builder = provider.GetRequiredService<EmbeddingBuilder>();
 
