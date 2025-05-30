@@ -25,7 +25,6 @@ var provider = services.BuildServiceProvider();
 var builder = provider.GetRequiredService<EmbeddingBuilder>();
 
 var embeddingsResult = await builder
-    .ClearChunks()
     .AddTextChunk("Hello")
     .AddTextChunk(", world!")
     .BuildAsync();

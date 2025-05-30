@@ -83,6 +83,17 @@ namespace Denomica.AI.Extensions.Embeddings
         }
 
         /// <summary>
+        /// Adds a task that produces a text chunk to the builder.
+        /// </summary>
+        /// <param name="text">A task that produces a text to use as chunk.</param>
+        /// <returns>The builder instance.</returns>
+        public EmbeddingBuilder AddTextChunk(Task<string> text)
+        {
+            this.Chunks.Add(text);
+            return this;
+        }
+
+        /// <summary>
         /// Adds each chunk returned by <paramref name="chunkingService"/> as a text chunk to the current builder.
         /// </summary>
         /// <param name="chunkingService">The chunking service to use to produce the chunks.</param>
@@ -94,8 +105,7 @@ namespace Denomica.AI.Extensions.Embeddings
                 {
                     using (var reader = new StreamReader(chunk))
                     {
-                        var text = await reader.ReadToEndAsync();
-                        this.AddTextChunk(text);
+                        this.AddTextChunk(reader.ReadToEndAsync());
                     }
                 }
                 else
@@ -124,6 +134,10 @@ namespace Denomica.AI.Extensions.Embeddings
         /// Returns a single embedding that is the average of the embeddings of the individual chunks.
         /// The average is weighted by the number of tokens consumed for each chunk.
         /// </returns>
+        /// <remarks>
+        /// This method clears the chunks after building the embedding, so you can call it multiple 
+        /// times to build embeddings from different sets of chunks.
+        /// </remarks>
         public async Task<EmbeddingBuildResult> BuildAsync()
         {
             var results = new List<EmbeddingsResult>();
@@ -137,6 +151,9 @@ namespace Denomica.AI.Extensions.Embeddings
             var result = this.CombineEmbeddingItems(results);
             result.Text = string.Join("", from x in this.Chunks select x.Result);
             result.Model = this.Options.Name ?? "";
+
+            // We're done with the chunks, so clear them for the next embedding build.
+            this.ClearChunks();
 
             return result;
         }
