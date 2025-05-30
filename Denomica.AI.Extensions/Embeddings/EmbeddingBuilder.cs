@@ -1,4 +1,5 @@
-﻿using Denomica.AI.Extensions.Chunking;
+﻿using Azure.AI.Inference;
+using Denomica.AI.Extensions.Chunking;
 using Denomica.AI.Extensions.Configuration;
 using Denomica.AI.Extensions.Messages;
 using Microsoft.Extensions.Options;
@@ -25,10 +26,11 @@ namespace Denomica.AI.Extensions.Embeddings
         /// </summary>
         /// <param name="optionsFactory">The options factory that the builder uses to get its options.</param>
         /// <param name="httpClient">The HTTP client used by the builder to communicate with the embedding model in Azure AI Foundry.</param>
-        public EmbeddingBuilder(IOptionsFactory<ModelDeploymentOptions> optionsFactory, HttpClient httpClient)
+        public EmbeddingBuilder(IOptionsFactory<ModelDeploymentOptions> optionsFactory)
         {
             this.Options = optionsFactory.Create(EmbeddingBuilder.OptionsKey);
-            this.HttpClient = httpClient;
+
+            this.EmbeddingsClient = this.CreateClient(this.Options);
         }
 
         /// <summary>
@@ -36,11 +38,14 @@ namespace Denomica.AI.Extensions.Embeddings
         /// </summary>
         /// <param name="options">The options used by the builder instance.</param>
         /// <param name="httpClient">The HTTP client used by the builder to communicate with the embedding model in Azure AI Foundry.</param>
-        public EmbeddingBuilder(ModelDeploymentOptions options, HttpClient httpClient)
+        public EmbeddingBuilder(ModelDeploymentOptions options)
         {
             this.Options = options;
-            this.HttpClient = httpClient;
+
+            this.EmbeddingsClient = this.CreateClient(this.Options);
         }
+
+
 
         /// <summary>
         /// The key to use for naming the options for the builder.
@@ -57,7 +62,8 @@ namespace Denomica.AI.Extensions.Embeddings
             PropertyNameCaseInsensitive = true,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
-        private HttpClient HttpClient { get; }
+
+        private EmbeddingsClient EmbeddingsClient;
 
         private List<Task<string>> Chunks = new List<Task<string>>();
         /// <summary>
@@ -120,41 +126,31 @@ namespace Denomica.AI.Extensions.Embeddings
         /// </returns>
         public async Task<EmbeddingBuildResult> BuildAsync()
         {
-            var textBuilder = new StringBuilder();
-            var embeddings = new List<EmbeddingResponse>();
-            foreach (var ip in this.Chunks)
+            var results = new List<EmbeddingsResult>();
+
+            foreach(var chunk in this.Chunks)
             {
-                embeddings.Add(await this.GenerateEmbeddingAsync(ip));
-                textBuilder.Append(ip.Result);
+                var embedding = await this.GenerateEmbeddingAsync(chunk);
+                results.Add(embedding);
             }
 
-            var result = this.CombineEmbeddingResponses(embeddings);
-            result.Text = textBuilder.ToString();
+            var result = this.CombineEmbeddingItems(results);
+            result.Text = string.Join("", from x in this.Chunks select x.Result);
+            result.Model = this.Options.Name ?? "";
 
             return result;
         }
 
 
 
-        private EmbeddingBuildResult CombineEmbeddingResponses(IEnumerable<EmbeddingResponse> embeddings)
+        private EmbeddingBuildResult CombineEmbeddingItems(IEnumerable<EmbeddingsResult> items)
         {
-            var weightedEmbeddings = embeddings
-                .SelectMany(e => e.Data.Select(d => new WeightedEmbedding { Embedding = d.Embedding, Weight = e.Usage.Total_Tokens }))
+            var weightedEmbeddings = items
+                .SelectMany(e => e.Data.Select(d => new WeightedEmbedding { Embedding = d.Embedding.ToObjectFromJson<float[]>() ?? new float[0], Weight = e.Usage.TotalTokens }))
                 .ToList();
 
-            if (!weightedEmbeddings.Any())
-            {
-                throw new ArgumentException("Embeddings must not be an empty collection.", nameof(embeddings));
-            }
-
             var firstEmbeddingLength = weightedEmbeddings.First().Embedding.Length;
-            if (weightedEmbeddings.Any(we => we.Embedding.Length != firstEmbeddingLength))
-            {
-                throw new ArgumentException("All embeddings must have the same length.", nameof(embeddings));
-            }
-
             var resultEmbedding = new float[firstEmbeddingLength];
-
             foreach (var we in weightedEmbeddings)
             {
                 for (int i = 0; i < firstEmbeddingLength; i++)
@@ -172,43 +168,29 @@ namespace Denomica.AI.Extensions.Embeddings
             return new EmbeddingBuildResult
             {
                 Embedding = resultEmbedding,
-                TokensConsumed = totalWeight,
-                Model = embeddings.First().Model
+                TokensConsumed = totalWeight
             };
         }
 
-        private HttpRequestMessage CreateRequest(EmbeddingRequest payload)
+        private EmbeddingsClient CreateClient(ModelDeploymentOptions options)
         {
-            var req = new HttpRequestMessage(HttpMethod.Post, this.Options.Endpoint);
-            req.Headers.Add("api-key", this.Options.Key);
-            var jsonPayload = JsonSerializer.Serialize(payload, this.SerializationOptions);
-            req.Content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-
-            return req;
+            return new EmbeddingsClient(new Uri(this.Options.Endpoint), new Azure.AzureKeyCredential(this.Options.Key));
         }
 
-        private async Task<EmbeddingResponse> GenerateEmbeddingAsync(Task<string> input)
+        private async Task<EmbeddingsResult> GenerateEmbeddingAsync(Task<string> input)
         {
-            var payload = new EmbeddingRequest { Model = this.Options.Name, Input = await input, Dimensions = this.Options.Dimensions };
-            var request = this.CreateRequest(payload);
-            var response = await this.HttpClient.SendAsync(request);
-            if (response.IsSuccessStatusCode)
+            var options = new EmbeddingsOptions(new string[] { await input })
             {
-                using (var responseStream = await response.Content.ReadAsStreamAsync())
-                {
-                    return await JsonSerializer.DeserializeAsync<EmbeddingResponse>(responseStream, this.SerializationOptions) ?? new EmbeddingResponse();
-                }
-            }
-            else if (response.StatusCode == HttpStatusCode.BadRequest)
-            {
-                var json = await response.Content.ReadAsStringAsync();
-                throw new Exception($"Response BadRequest (400) from endpoint {this.Options.Endpoint}. {json}");
-            }
-            else
-            {
-                throw new Exception($"Unsuccessful status code {response.StatusCode} from endpoint {this.Options.Endpoint}");
-            }
+                Model = this.Options.Name,
+                Dimensions = this.Options.Dimensions
+            };
+
+            var result = await this.EmbeddingsClient.EmbedAsync(options);
+            return result.Value;
         }
+
+
+
 
         private class WeightedEmbedding
         {

@@ -26,7 +26,8 @@ var builder = provider.GetRequiredService<EmbeddingBuilder>();
 
 var embeddingsResult = await builder
     .ClearChunks()
-    .AddTextChunk("Hello, world!")
+    .AddTextChunk("Hello")
+    .AddTextChunk(", world!")
     .BuildAsync();
 
 var embedding = embeddingsResult.Embedding;
