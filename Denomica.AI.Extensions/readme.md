@@ -6,6 +6,10 @@ Denomica.AI.Extensions is a library that supports and extends AI services and ca
 
 The main hihglights in the published versions are outlined below.
 
+### v1.0.0-beta.2
+
+- Simplified how the `EmbeddingBuilder` class uses options specified in `ModelDeploymentOptions`.
+
 ### v1.0.0-beta.1
 
 - Modified the `EmbeddingBuilder` class to support the use of Azure AI Foundry's embedding models by using the [`Azure.AI.Inference`](https://www.nuget.org/packages/Azure.AI.Inference) package.
