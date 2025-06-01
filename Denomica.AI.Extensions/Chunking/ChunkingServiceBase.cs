@@ -38,6 +38,12 @@ namespace Denomica.AI.Extensions.Chunking
                     }
                 }
                 while (null != nextChunk);
+
+                if (chunkBuilder.Length > 0)
+                {
+                    yield return chunkBuilder.ToString();
+                    chunkBuilder.Clear();
+                }
             }
 
             yield break;

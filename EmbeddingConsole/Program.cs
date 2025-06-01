@@ -1,4 +1,5 @@
-﻿using Denomica.AI.Extensions.Configuration;
+﻿using Denomica.AI.Extensions.Chunking;
+using Denomica.AI.Extensions.Configuration;
 using Denomica.AI.Extensions.Embeddings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,14 +21,12 @@ var services = new ServiceCollection()
     }).Services
     
     .AddTransient<EmbeddingBuilder>()
+    .AddSingleton<IChunkingService, LineChunkingService>()
 ;
 
 var provider = services.BuildServiceProvider();
-var builder = provider.GetRequiredService<EmbeddingBuilder>();
-
-var embeddingsResult = await builder
-    .AddTextChunk("Hello")
-    .AddTextChunk(", world!")
-    .BuildAsync();
+var builder = await provider.GetRequiredService<EmbeddingBuilder>()
+    .AddTextChunksAsync("Hello world!", provider.GetRequiredService<IChunkingService>());
+var embeddingsResult = await builder.BuildAsync();
 
 var embedding = embeddingsResult.Embedding;
