@@ -13,7 +13,7 @@ var services = new ServiceCollection()
 
     .AddHttpClient()
 
-    .AddOptions<ModelDeploymentOptions>(EmbeddingBuilder.OptionsKey)
+    .AddOptions<ModelDeploymentOptions>()
     .Configure<IConfigurationRoot>((opt, root) =>
     {
         root.GetSection("embedding:model").Bind(opt);

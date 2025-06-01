@@ -21,15 +21,14 @@ namespace Denomica.AI.Extensions.Embeddings
     /// </summary>
     public class EmbeddingBuilder
     {
+
         /// <summary>
         /// Initializes a new instance of the <see cref="EmbeddingBuilder"/> class.
         /// </summary>
-        /// <param name="optionsFactory">The options factory that the builder uses to get its options.</param>
-        /// <param name="httpClient">The HTTP client used by the builder to communicate with the embedding model in Azure AI Foundry.</param>
-        public EmbeddingBuilder(IOptionsFactory<ModelDeploymentOptions> optionsFactory)
+        /// <param name="options">The options to use with the instance.</param>
+        public EmbeddingBuilder(IOptions<ModelDeploymentOptions> options)
         {
-            this.Options = optionsFactory.Create(EmbeddingBuilder.OptionsKey);
-
+            this.Options = options?.Value ?? throw new ArgumentNullException(nameof(options));
             this.EmbeddingsClient = this.CreateClient(this.Options);
         }
 
@@ -46,14 +45,6 @@ namespace Denomica.AI.Extensions.Embeddings
         }
 
 
-
-        /// <summary>
-        /// The key to use for naming the options for the builder.
-        /// </summary>
-        /// <remarks>
-        /// This key must be used when you add the options for this builder to your service collection.
-        /// </remarks>
-        public const string OptionsKey = "embedding-builder-options";
 
         private ModelDeploymentOptions Options { get; }
         private JsonSerializerOptions SerializationOptions = new JsonSerializerOptions
