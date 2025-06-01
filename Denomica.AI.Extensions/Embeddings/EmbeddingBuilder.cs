@@ -85,19 +85,17 @@ namespace Denomica.AI.Extensions.Embeddings
         }
 
         /// <summary>
-        /// Adds each chunk returned by <paramref name="chunkingService"/> as a text chunk to the current builder.
+        /// Adds chunks from the given <paramref name="input"/> by using the given <paramref name="chunkingService"/>.
         /// </summary>
-        /// <param name="chunkingService">The chunking service to use to produce the chunks.</param>
-        public async Task<EmbeddingBuilder> AddTextChunksAsync(IChunkingService chunkingService)
+        /// <param name="input">An input stream containing the text to chunk.</param>
+        /// <param name="chunkingService">The chunking service to use to chunk up the input.</param>
+        public async Task<EmbeddingBuilder> AddTextChunksAsync(Stream input, IChunkingService chunkingService)
         {
-            await foreach(var chunk in chunkingService.GetChunksAsync())
+            await foreach(var chunk in chunkingService.GetChunksAsync(input))
             {
-                if(null != chunk)
+                if (null != chunk)
                 {
-                    using (var reader = new StreamReader(chunk))
-                    {
-                        this.AddTextChunk(reader.ReadToEndAsync());
-                    }
+                    this.AddTextChunk(chunk);
                 }
                 else
                 {
@@ -105,16 +103,6 @@ namespace Denomica.AI.Extensions.Embeddings
                 }
             }
 
-            return this;
-        }
-
-        /// <summary>
-        /// Clears all chunks from the builder.
-        /// </summary>
-        /// <returns>The builder instance.</returns>
-        public EmbeddingBuilder ClearChunks()
-        {
-            this.Chunks.Clear();
             return this;
         }
 
@@ -144,7 +132,7 @@ namespace Denomica.AI.Extensions.Embeddings
             result.Model = this.Options.Name ?? "";
 
             // We're done with the chunks, so clear them for the next embedding build.
-            this.ClearChunks();
+            this.Chunks.Clear();
 
             return result;
         }

@@ -12,9 +12,15 @@ namespace Denomica.AI.Extensions.Chunking
     {
 
         /// <summary>
-        /// Returns a collection of streams containing chunks.
+        /// Sets or returns the maximum chunk length returned by the chunking service.
         /// </summary>
-        IAsyncEnumerable<Stream> GetChunksAsync();
+        int MaxChunkLength { get; set; }
+
+        /// <summary>
+        /// Returns a collection of strings representing
+        /// </summary>
+        /// <param name="input">A stream containing the input string to chunk up.</param>
+        IAsyncEnumerable<string> GetChunksAsync(Stream input);
 
     }
 }
