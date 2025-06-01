@@ -6,6 +6,10 @@ Denomica.AI.Extensions is a library that supports and extends AI services and ca
 
 The main hihglights in the published versions are outlined below.
 
+### v1.0.0-beta.4
+
+- Added an overloaded method to the `EmbeddingBuilder` implementation.
+
 ### v1.0.0-beta.3
 
 - Modified the `IChunkingService` interface, and added the `LineChunkingService` implementation of that interface.
