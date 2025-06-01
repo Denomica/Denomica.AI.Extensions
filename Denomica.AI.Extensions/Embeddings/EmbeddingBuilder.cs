@@ -107,6 +107,26 @@ namespace Denomica.AI.Extensions.Embeddings
         }
 
         /// <summary>
+        /// Adds chunks from the given <paramref name="input"/> by using the given <paramref name="chunkingService"/>.
+        /// </summary>
+        /// <param name="input">The string to chunk up.</param>
+        /// <param name="chunkingService">The chunking service to use.</param>
+        public async Task<EmbeddingBuilder> AddTextChunksAsync(string input, IChunkingService chunkingService)
+        {
+            using (var strm = new MemoryStream())
+            {
+                using (var writer = new StreamWriter(strm, Encoding.UTF8, 4096, true))
+                {
+                    await writer.WriteAsync(input);
+                    await writer.FlushAsync();
+                    strm.Position = 0;
+
+                    return await this.AddTextChunksAsync(strm, chunkingService);
+                }
+            }
+        }
+
+        /// <summary>
         /// Builds the embeddings for the chunks added to the builder.
         /// </summary>
         /// <returns>
