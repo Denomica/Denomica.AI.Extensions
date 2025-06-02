@@ -3,6 +3,7 @@ using Denomica.AI.Extensions.Configuration;
 using Denomica.AI.Extensions.Embeddings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 IConfigurationRoot config = new ConfigurationBuilder()
     .AddJsonFile("local.settings.json", false)
@@ -14,19 +15,24 @@ var services = new ServiceCollection()
 
     .AddHttpClient()
 
-    .AddOptions<ModelDeploymentOptions>()
+    .AddOptions<EmbeddingModelDeploymentOptions>()
     .Configure<IConfigurationRoot>((opt, root) =>
     {
         root.GetSection("embedding:model").Bind(opt);
     }).Services
     
-    .AddTransient<EmbeddingBuilder>()
     .AddSingleton<IChunkingService, LineChunkingService>()
+    .AddTransient<EmbeddingBuilder>(sp =>
+    {
+        var chunker = sp.GetRequiredService<IChunkingService>();
+        var options = sp.GetRequiredService<IOptions<EmbeddingModelDeploymentOptions>>();
+        return new EmbeddingBuilder(options, chunker);
+    })
 ;
 
 var provider = services.BuildServiceProvider();
 var builder = await provider.GetRequiredService<EmbeddingBuilder>()
-    .AddTextChunksAsync("Hello world!", provider.GetRequiredService<IChunkingService>());
+    .AddTextAsync("Hello world!");
 var embeddingsResult = await builder.BuildAsync();
 
 var embedding = embeddingsResult.Embedding;

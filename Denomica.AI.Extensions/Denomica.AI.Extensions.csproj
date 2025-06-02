@@ -16,6 +16,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Chunking\MarkdownChunkingService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Chunking\MarkdownChunkingService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Azure.AI.Inference" Version="1.0.0-beta.5" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.0" />

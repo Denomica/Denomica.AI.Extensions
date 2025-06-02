@@ -1,7 +1,6 @@
 ﻿using Azure.AI.Inference;
 using Denomica.AI.Extensions.Chunking;
 using Denomica.AI.Extensions.Configuration;
-using Denomica.AI.Extensions.Messages;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -26,27 +25,32 @@ namespace Denomica.AI.Extensions.Embeddings
         /// Initializes a new instance of the <see cref="EmbeddingBuilder"/> class.
         /// </summary>
         /// <param name="options">The options to use with the instance.</param>
-        public EmbeddingBuilder(IOptions<ModelDeploymentOptions> options)
+        public EmbeddingBuilder(IOptions<EmbeddingModelDeploymentOptions> options, IChunkingService chunkingService)
         {
             this.Options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+            this.ChunkingService = chunkingService ?? throw new ArgumentNullException(nameof(chunkingService));
+
             this.EmbeddingsClient = this.CreateClient(this.Options);
         }
+
+        private IChunkingService ChunkingService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EmbeddingBuilder"/> class.
         /// </summary>
         /// <param name="options">The options used by the builder instance.</param>
         /// <param name="httpClient">The HTTP client used by the builder to communicate with the embedding model in Azure AI Foundry.</param>
-        public EmbeddingBuilder(ModelDeploymentOptions options)
+        public EmbeddingBuilder(EmbeddingModelDeploymentOptions options, IChunkingService chunkingService)
         {
             this.Options = options;
+            this.ChunkingService = chunkingService ?? throw new ArgumentNullException(nameof(chunkingService));
 
             this.EmbeddingsClient = this.CreateClient(this.Options);
         }
 
 
 
-        private ModelDeploymentOptions Options { get; }
+        private EmbeddingModelDeploymentOptions Options { get; }
         private JsonSerializerOptions SerializationOptions = new JsonSerializerOptions
         {
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -67,7 +71,7 @@ namespace Denomica.AI.Extensions.Embeddings
         /// </remarks>
         /// <param name="text">The text chunk to add to the builder.</param>
         /// <returns>The builder instance.</returns>
-        public EmbeddingBuilder AddTextChunk(string text)
+        public EmbeddingBuilder AddChunk(string text)
         {
             this.Chunks.Add(Task.FromResult(text));
             return this;
@@ -78,24 +82,57 @@ namespace Denomica.AI.Extensions.Embeddings
         /// </summary>
         /// <param name="text">A task that produces a text to use as chunk.</param>
         /// <returns>The builder instance.</returns>
-        public EmbeddingBuilder AddTextChunk(Task<string> text)
+        public EmbeddingBuilder AddChunk(Task<string> text)
         {
             this.Chunks.Add(text);
             return this;
         }
 
         /// <summary>
-        /// Adds chunks from the given <paramref name="input"/> by using the given <paramref name="chunkingService"/>.
+        /// Adds the given text to the embedding builder and chunks it up using the configured chunking service
+        /// if necessary.
         /// </summary>
-        /// <param name="input">An input stream containing the text to chunk.</param>
-        /// <param name="chunkingService">The chunking service to use to chunk up the input.</param>
-        public async Task<EmbeddingBuilder> AddTextChunksAsync(Stream input, IChunkingService chunkingService)
+        /// <param name="text">The text to add to the embedding builder.</param>
+        /// <param name="chunkingService">An optional chunking service to use to create chunks. If not specified, the default configured chunking service is used.</param>
+        public Task<EmbeddingBuilder> AddTextAsync(string text, IChunkingService? chunkingService = null)
         {
-            await foreach(var chunk in chunkingService.GetChunksAsync(input))
+            return this.AddTextAsync(Task.FromResult(text));
+        }
+
+        /// <summary>
+        /// Adds the given text to the embedding builder and chunks it up using the configured chunking service
+        /// if necessary.
+        /// </summary>
+        /// <param name="text">A task that returns the text to add to the embedding builder.</param>
+        /// <param name="chunkingService">An optional chunking service to use to create chunks. If not specified, the default configured chunking service is used.</param>
+        public async Task<EmbeddingBuilder> AddTextAsync(Task<string> text, IChunkingService? chunkingService = null)
+        {
+            using (var strm = new MemoryStream())
+            {
+                using (var writer = new StreamWriter(strm))
+                {
+                    await writer.WriteAsync(await text);
+                    await writer.FlushAsync();
+                    strm.Position = 0;
+
+                    return await this.AddTextAsync(strm);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adds text from the given <paramref name="textStream"/> to the embedding builder.
+        /// </summary>
+        /// <param name="textStream">The stream containging the text to add.</param>
+        /// <param name="chunkingService">An optional chunking service to use to create chunks. If not specified, the default configured chunking service is used.</param>
+        public async Task<EmbeddingBuilder> AddTextAsync(Stream textStream, IChunkingService? chunkingService = null)
+        {
+            var chunker = chunkingService ?? this.ChunkingService;
+            await foreach(var chunk in chunker.GetChunksAsync(textStream))
             {
                 if (null != chunk)
                 {
-                    this.AddTextChunk(chunk);
+                    this.AddChunk(chunk);
                 }
                 else
                 {
@@ -104,26 +141,6 @@ namespace Denomica.AI.Extensions.Embeddings
             }
 
             return this;
-        }
-
-        /// <summary>
-        /// Adds chunks from the given <paramref name="input"/> by using the given <paramref name="chunkingService"/>.
-        /// </summary>
-        /// <param name="input">The string to chunk up.</param>
-        /// <param name="chunkingService">The chunking service to use.</param>
-        public async Task<EmbeddingBuilder> AddTextChunksAsync(string input, IChunkingService chunkingService)
-        {
-            using (var strm = new MemoryStream())
-            {
-                using (var writer = new StreamWriter(strm, Encoding.UTF8, 4096, true))
-                {
-                    await writer.WriteAsync(input);
-                    await writer.FlushAsync();
-                    strm.Position = 0;
-
-                    return await this.AddTextChunksAsync(strm, chunkingService);
-                }
-            }
         }
 
         /// <summary>
