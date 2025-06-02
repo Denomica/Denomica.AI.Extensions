@@ -6,6 +6,14 @@ Denomica.AI.Extensions is a library that supports and extends AI services and ca
 
 The main hihglights in the published versions are outlined below.
 
+### v1.0.0-beta.6
+
+Preparing the library for a stable release. However, this library is still in beta, because it has a dependency on the `Azure.AI.Inference` package, which is still in preview. When that package is released, this library will be released as stable as well.
+
+- Cleaned up old stuff from the project.
+- Modified `EmbeddingBuilder` to use a configured `IChunkingService` implementation by default, and allow the use of a custom implementation if needed.
+- Added a new `EmbeddingBuilderOptions` class to allow for more flexible configuration of the embedding builder.
+
 ### v1.0.0-beta.5
 
 - Fixed a problem with the `ChunkingServiceBase` class.
