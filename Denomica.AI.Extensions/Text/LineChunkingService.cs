@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Denomica.AI.Extensions.Chunking
+namespace Denomica.AI.Extensions.Text
 {
     /// <summary>
     /// A chunking service that breaks up text into chunks based on lines.

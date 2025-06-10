@@ -1,6 +1,6 @@
 ﻿using Azure.AI.Inference;
-using Denomica.AI.Extensions.Chunking;
 using Denomica.AI.Extensions.Configuration;
+using Denomica.AI.Extensions.Text;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;

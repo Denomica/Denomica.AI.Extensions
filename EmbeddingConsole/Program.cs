@@ -1,10 +1,11 @@
-﻿using Denomica.AI.Extensions.Chunking;
-using Denomica.AI.Extensions.Configuration;
+﻿using Denomica.AI.Extensions.Configuration;
 using Denomica.AI.Extensions.Embedding;
 using Denomica.AI.Extensions.Embeddings;
+using Denomica.AI.Extensions.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using EmbeddingConsole.Properties;
 
 IConfigurationRoot config = new ConfigurationBuilder()
     .AddJsonFile("local.settings.json", false)
@@ -28,7 +29,7 @@ var services = new ServiceCollection()
 
 var provider = services.BuildServiceProvider();
 var embeddingGenerator = provider.GetRequiredService<ITextEmbeddingGenerator>();
-var embeddings = await embeddingGenerator.GenerateAsync(["Hello World!"]);
+var embeddings = await embeddingGenerator.GenerateAsync([Resources.MdDocument01]);
 var count = embeddings.Count;
 
 //await Embed01(provider);

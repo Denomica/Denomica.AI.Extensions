@@ -1,0 +1,73 @@
+# Vector Embeddings in Azure AI Foundry
+
+## Introduction
+Vector embeddings are a crucial component of AI-driven applications, enabling efficient similarity searches, recommendation systems, and clustering. Azure AI Foundry provides a powerful framework for deploying and utilizing embedding models for various use cases.
+
+## What Are Vector Embeddings?
+Vector embeddings transform data into numerical vectors that capture semantic relationships. These embeddings are used in:
+- **Semantic search**: Finding relevant documents based on meaning rather than keywords.
+- **Recommendation systems**: Suggesting similar items based on user preferences.
+- **Clustering and classification**: Grouping similar data points for analysis.
+
+## Azure AI Foundry and Vectorization
+Azure AI Foundry offers integrated vectorization capabilities using embedding models from its model catalog. These models can be deployed for indexing and querying in **Azure AI Search**.
+
+### Supported Embedding Models
+Azure AI Foundry provides several embedding models, including:
+- **Text embeddings**:
+  - Cohere-embed-v3-english
+  - Cohere-embed-v3-multilingual
+- **Image embeddings**:
+  - Facebook-DinoV2-Image-Embeddings-ViT-Base
+  - Facebook-DinoV2-Image-Embeddings-ViT-Giant
+
+## Deploying an Embedding Model
+To deploy an embedding model in Azure AI Foundry:
+1. Open the **Azure AI Foundry model catalog**.
+2. Create a project if needed.
+3. Select **Model catalog** and filter for embedding models.
+4. Choose a model and click **Use this model**.
+5. Configure deployment settings and deploy the model.
+6. Monitor the provisioning state until deployment is successful.
+
+## Using Vector Embeddings in Azure AI Search
+Once deployed, embedding models can be used for **integrated vectorization**:
+- **Indexing**: Convert documents into vector representations for efficient retrieval.
+- **Querying**: Use vectorized queries to find semantically similar results.
+
+### Example Workflow
+1. Deploy an embedding model.
+2. Configure an **Azure AI Search index** to use the model.
+3. Use the **Import and vectorize data wizard** to generate a skillset.
+4. Define an **AML skill** for embedding model integration.
+5. Execute queries using vectorized representations.
+
+## Advanced Features
+Azure AI Foundry supports **multi-modal embeddings**, allowing both text and images to be embedded into a unified vector space. This enables cross-modal search capabilities.
+
+### Matryoshka Embeddings
+Cohere’s **Embed 4** model introduces **Matryoshka Representation Learning**, which allows embeddings to be truncated to smaller sizes while preserving semantic fidelity. This feature optimizes storage and query performance.
+
+## Scaling Vector Search in Azure
+Azure AI Foundry enables scalable vector search by integrating embedding models with **Azure AI Search**. This allows businesses to:
+- Store large-scale vectorized data efficiently.
+- Perform high-speed similarity searches.
+- Optimize retrieval accuracy using advanced indexing techniques.
+
+### Optimizing Vector Indexing
+To improve vector search performance:
+- Use **approximate nearest neighbor (ANN) algorithms**.
+- Optimize **index configurations** for faster retrieval.
+- Implement **hybrid search** combining keyword and vector search.
+
+## Real-World Applications
+Vector embeddings in Azure AI Foundry are used in various industries:
+- **E-commerce**: Personalized product recommendations.
+- **Healthcare**: Medical image retrieval and diagnostics.
+- **Finance**: Fraud detection using anomaly detection models.
+- **Legal**: Semantic search for case law and legal documents.
+
+## Conclusion
+Vector embeddings in Azure AI Foundry provide powerful capabilities for AI-driven search and retrieval. By leveraging embedding models, businesses can enhance search accuracy, improve recommendations, and enable advanced AI applications.
+
+For more details, visit the [Azure AI Foundry documentation](https://learn.microsoft.com/en-us/azure/search/vector-search-integrated-vectorization-ai-studio).

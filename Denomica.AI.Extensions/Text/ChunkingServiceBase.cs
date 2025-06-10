@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Denomica.AI.Extensions.Chunking
+namespace Denomica.AI.Extensions.Text
 {
     /// <summary>
     /// A base class for chunking services that provides a default implementation of the <see cref="IChunkingService"/> interface.
@@ -17,16 +17,16 @@ namespace Denomica.AI.Extensions.Chunking
         /// <inheritdoc/>
         public virtual async IAsyncEnumerable<string> GetChunksAsync(Stream input)
         {
-            using(var reader = new StreamReader(input, Encoding.UTF8, true, 4096, true))
+            using (var reader = new StreamReader(input, Encoding.UTF8, true, 4096, true))
             {
                 var chunkBuilder = new StringBuilder();
                 string? nextChunk = null;
                 do
                 {
-                    nextChunk = await this.GetNextChunkAsync(reader);
+                    nextChunk = await GetNextChunkAsync(reader);
                     if (null != nextChunk)
                     {
-                        if (chunkBuilder.Length + nextChunk.Length <= this.MaxChunkLength)
+                        if (chunkBuilder.Length + nextChunk.Length <= MaxChunkLength)
                         {
                             chunkBuilder.Append(nextChunk);
                         }
@@ -57,7 +57,7 @@ namespace Denomica.AI.Extensions.Chunking
         {
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(input)))
             {
-                await foreach (var chunk in this.GetChunksAsync(stream))
+                await foreach (var chunk in GetChunksAsync(stream))
                 {
                     yield return chunk;
                 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Denomica.AI.Extensions.Chunking
+namespace Denomica.AI.Extensions.Text
 {
     /// <summary>
     /// The interface implemented by a service that provides chunks for creating vector embeddings from.
