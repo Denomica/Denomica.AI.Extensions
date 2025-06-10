@@ -6,6 +6,10 @@ Denomica.AI.Extensions is a library that supports and extends AI services and ca
 
 The main hihglights in the published versions are outlined below.
 
+### v1.0.0-beta.7
+
+- Downgraded all references Microsoft.Extensions.* packages to version 8.0.x in order to support Azure Functions applications running on in-process worker model on .NET 8.
+
 ### v1.0.0-beta.6
 
 Preparing the library for a stable release. However, this library is still in beta, because it has a dependency on the `Azure.AI.Inference` package, which is still in preview. When that package is released, this library will be released as stable as well.

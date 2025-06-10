@@ -18,6 +18,7 @@ namespace Denomica.AI.Extensions.Embeddings
     /// <summary>
     /// A builder for creating embeddings from text chunks.
     /// </summary>
+    [Obsolete("Use the Denomica.AI.Extensions.Embedding namespace instead.")]
     public class EmbeddingBuilder
     {
 

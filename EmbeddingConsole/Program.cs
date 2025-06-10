@@ -1,5 +1,6 @@
 ﻿using Denomica.AI.Extensions.Chunking;
 using Denomica.AI.Extensions.Configuration;
+using Denomica.AI.Extensions.Embedding;
 using Denomica.AI.Extensions.Embeddings;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,19 +21,22 @@ var services = new ServiceCollection()
     {
         root.GetSection("embedding:model").Bind(opt);
     }).Services
-    
+
     .AddSingleton<IChunkingService, LineChunkingService>()
-    .AddTransient<EmbeddingBuilder>(sp =>
-    {
-        var chunker = sp.GetRequiredService<IChunkingService>();
-        var options = sp.GetRequiredService<IOptions<EmbeddingModelDeploymentOptions>>();
-        return new EmbeddingBuilder(options, chunker);
-    })
+    .AddSingleton<ITextEmbeddingGenerator, EmbeddingGenerator>()
 ;
 
 var provider = services.BuildServiceProvider();
-var builder = await provider.GetRequiredService<EmbeddingBuilder>()
-    .AddTextAsync("Hello world!");
-var embeddingsResult = await builder.BuildAsync();
+var embeddingGenerator = provider.GetRequiredService<ITextEmbeddingGenerator>();
+var embeddings = await embeddingGenerator.GenerateAsync(["Hello World!"]);
+var count = embeddings.Count;
 
-var embedding = embeddingsResult.Embedding;
+//await Embed01(provider);
+
+static async Task Embed01(ServiceProvider provider)
+{
+    var builder = await provider.GetRequiredService<EmbeddingBuilder>()
+        .AddTextAsync("Hello world!");
+    var embeddingsResult = await builder.BuildAsync();
+    var embedding = embeddingsResult.Embedding;
+}

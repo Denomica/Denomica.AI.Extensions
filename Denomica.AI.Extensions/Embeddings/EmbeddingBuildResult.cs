@@ -11,6 +11,7 @@ namespace Denomica.AI.Extensions.Embeddings
     /// If you build an embedding from multiple chunks, the embedding is the average of the embeddings 
     /// of the individual chunks. The average is weighted by the number of tokens consumed for each chunk.
     /// </remarks>
+    [Obsolete("Use the Denomica.AI.Extensions.Embedding namespace instead.")]
     public class EmbeddingBuildResult
     {
         /// <summary>
