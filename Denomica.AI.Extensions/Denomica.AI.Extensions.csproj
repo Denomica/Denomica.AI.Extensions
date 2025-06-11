@@ -11,7 +11,7 @@
 		<RepositoryUrl>https://github.com/Denomica/Denomica.AI.Extensions</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<Version>1.0.0-beta.8</Version>
+		<Version>1.0.0-beta.9</Version>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	</PropertyGroup>
 

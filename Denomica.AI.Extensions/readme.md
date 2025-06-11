@@ -6,6 +6,10 @@ Denomica.AI.Extensions is a library that supports and extends AI services and ca
 
 The main hihglights in the published versions are outlined below.
 
+### v1.0.0-beta.9
+
+- Added the name of the model to the generated embedding result in the `EmbeddingGenerator` class.
+
 ### v1.0.0-beta.8
 
 - Create a new `EmbeddingGenerator` class that implements the [`IEmbeddingGenerator<TInput, TEmbedding>`](https://learn.microsoft.com/dotnet/api/microsoft.extensions.ai.iembeddinggenerator-2) interface defined in [`Microsoft.Extensions.AI`](https://www.nuget.org/packages/Microsoft.Extensions.AI). The `EmbeddingGenerator` class is defined in the `Denomica.AI.Extensions.Embedding` namespace.

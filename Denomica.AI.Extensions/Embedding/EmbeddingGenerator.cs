@@ -97,8 +97,13 @@ namespace Denomica.AI.Extensions.Embedding
                 }
             };
 
-            resultEmbedding.Add(new Embedding<float>(new ReadOnlyMemory<float>(combinedEmbedding.Embedding)));
+            resultEmbedding.Add(new Embedding<float>(new ReadOnlyMemory<float>(combinedEmbedding.Embedding))
+            {
+                AdditionalProperties = new AdditionalPropertiesDictionary(),
+                ModelId = this.Options.Name
+            });
 
+            resultEmbedding.AdditionalProperties.Add("modelName", this.Options.Name);
             return resultEmbedding;
         }
 
@@ -134,7 +139,7 @@ namespace Denomica.AI.Extensions.Embedding
         {
             var requestMessage = new EmbeddingRequest
             {
-                Model = this.Options.Name ?? throw new NullReferenceException("Options.Name must not be null."),
+                Model = this.Options?.Name ?? throw new NullReferenceException("Options.Name must not be null."),
                 Input = new List<string>(new string[] { input }),
                 Dimensions = this.Options.Dimensions
             };
@@ -160,7 +165,7 @@ namespace Denomica.AI.Extensions.Embedding
 
             foreach (var data in embeddingResult.Data)
             {
-                result.Add(new Embedding<float>(new ReadOnlyMemory<float>(data.Embedding.ToArray())) { });
+                result.Add(new Embedding<float>(new ReadOnlyMemory<float>(data.Embedding.ToArray())) { ModelId = requestMessage.Model });
             }
 
             result.Usage = new UsageDetails
