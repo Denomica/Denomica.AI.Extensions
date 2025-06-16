@@ -87,23 +87,28 @@ namespace Denomica.AI.Extensions.Embedding
 
             var combinedEmbedding = weightedEmbeddings.Combine();
 
-            var resultEmbedding = new GeneratedEmbeddings<Embedding<float>>
+            GeneratedEmbeddings<Embedding<float>> resultEmbedding = new GeneratedEmbeddings<Embedding<float>>();
+            if (null != combinedEmbedding)
             {
-                AdditionalProperties = new AdditionalPropertiesDictionary(),
-                
-                Usage = new UsageDetails
+                resultEmbedding = new GeneratedEmbeddings<Embedding<float>>
                 {
-                    TotalTokenCount = combinedEmbedding.Weight
-                }
-            };
+                    AdditionalProperties = new AdditionalPropertiesDictionary(),
 
-            resultEmbedding.Add(new Embedding<float>(new ReadOnlyMemory<float>(combinedEmbedding.Embedding))
-            {
-                AdditionalProperties = new AdditionalPropertiesDictionary(),
-                ModelId = this.Options.Name
-            });
+                    Usage = new UsageDetails
+                    {
+                        TotalTokenCount = combinedEmbedding.Weight
+                    }
+                };
 
-            resultEmbedding.AdditionalProperties.Add("modelName", this.Options.Name);
+                resultEmbedding.Add(new Embedding<float>(new ReadOnlyMemory<float>(combinedEmbedding.Embedding))
+                {
+                    AdditionalProperties = new AdditionalPropertiesDictionary(),
+                    ModelId = this.Options.Name
+                });
+
+                resultEmbedding.AdditionalProperties.Add("modelName", this.Options.Name);
+            }
+
             return resultEmbedding;
         }
 

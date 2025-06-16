@@ -6,6 +6,10 @@ Denomica.AI.Extensions is a library that supports and extends AI services and ca
 
 The main hihglights in the published versions are outlined below.
 
+### v1.0.0-beta.10
+
+- Fixed a problem with the `EmbeddingGenerator` class that caused it to fail when creating embeddings for an empty string or `null`.
+
 ### v1.0.0-beta.9
 
 - Added the name of the model to the generated embedding result in the `EmbeddingGenerator` class.

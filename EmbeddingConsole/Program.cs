@@ -32,6 +32,11 @@ var embeddingGenerator = provider.GetRequiredService<ITextEmbeddingGenerator>();
 var embeddings = await embeddingGenerator.GenerateAsync([Resources.MdDocument01]);
 var count = embeddings.Count;
 
+embeddings = await embeddingGenerator.GenerateAsync([""]);
+count = embeddings.Count;
+
+embeddings = await embeddingGenerator.GenerateAsync([null!]);
+count = embeddings.Count;
 //await Embed01(provider);
 
 static async Task Embed01(ServiceProvider provider)

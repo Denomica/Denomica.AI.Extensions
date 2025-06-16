@@ -9,29 +9,34 @@ namespace Denomica.AI.Extensions.Embedding
     public static class EmbeddingExtensionMethods
     {
 
-        internal static WeightedEmbedding Combine(this IEnumerable<WeightedEmbedding> weightedEmbeddings)
+        internal static WeightedEmbedding? Combine(this IEnumerable<WeightedEmbedding> weightedEmbeddings)
         {
-            var firstEmbeddingLength = weightedEmbeddings.First().Embedding.Length;
-            var resultEmbedding = new float[firstEmbeddingLength];
-            foreach (var we in weightedEmbeddings)
+            if(weightedEmbeddings.Any())
             {
-                for (int i = 0; i < firstEmbeddingLength; i++)
+                var firstEmbeddingLength = weightedEmbeddings.First().Embedding.Length;
+                var resultEmbedding = new float[firstEmbeddingLength];
+                foreach (var we in weightedEmbeddings)
                 {
-                    resultEmbedding[i] += we.Embedding[i] * we.Weight;
+                    for (int i = 0; i < firstEmbeddingLength; i++)
+                    {
+                        resultEmbedding[i] += we.Embedding[i] * we.Weight;
+                    }
                 }
+
+                var totalWeight = weightedEmbeddings.Sum(we => we.Weight);
+                for (int i = 0; i < resultEmbedding.Length; i++)
+                {
+                    resultEmbedding[i] /= totalWeight;
+                }
+
+                return new WeightedEmbedding
+                {
+                    Embedding = resultEmbedding,
+                    Weight = totalWeight
+                };
             }
 
-            var totalWeight = weightedEmbeddings.Sum(we => we.Weight);
-            for (int i = 0; i < resultEmbedding.Length; i++)
-            {
-                resultEmbedding[i] /= totalWeight;
-            }
-
-            return new WeightedEmbedding
-            {
-                Embedding = resultEmbedding,
-                Weight = totalWeight
-            };
+            return null;
         }
     }
 }
